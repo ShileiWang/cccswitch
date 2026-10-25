@@ -942,6 +942,9 @@
     "browsePlaceholderHermes": "例: /home/<your-username>/.hermes",
     "browsePlaceholderPi": "例: /home/<your-username>/.pi/agent",
     "browsePlaceholderOmp": "例: /home/<your-username>/.omp/agent",
+    "browsePlaceholderCursor": "例: /home/<your-username>/.cursor",
+    "cursorConfigDir": "Cursor 設定ディレクトリ",
+    "cursorConfigDirDescription": "Cursor の設定ディレクトリ（mcp.json、skills、管理対象プロバイダー）を上書きします。",
     "browseDirectory": "ディレクトリを選択",
     "resetDefault": "デフォルトに戻す（保存後に反映）",
     "checkForUpdates": "アップデートを確認",
@@ -4444,7 +4447,14 @@
     "exitAllTitle": "すべてのアプリを直接接続に戻しますか？",
     "exitAllMessage": "ルーティング・集約モードのアプリに直接接続の設定を書き戻し、ルーティングサービスを停止します。転送先・キュー・集約のリストは保持されます。",
     "exitAllConfirm": "すべて直接接続に戻す",
-    "failoverHelp": "ここでは各アプリのタイムアウト・再試行・サーキットブレーカーを調整します。キューは各アプリページの「ルーティング」タブで管理します。"
+    "failoverHelp": "ここでは各アプリのタイムアウト・再試行・サーキットブレーカーを調整します。キューは各アプリページの「ルーティング」タブで管理します。",
+    "globalRoute": "グローバルルーティング",
+    "globalRouteSwitch": "対応アプリを一括でルーティングする",
+    "globalRouteHelp": "オンにすると、ルーティングに対応したすべてのアプリが前回のルーティング先でルーティングモードに入り、サービスを起動します。各アプリは自分のページで個別に変更できます。オフにするとすべて直接接続に戻ります。",
+    "globalRouteStatus": "{{total}} アプリ中 {{attached}} アプリが接続中",
+    "globalRouteEntered": "{{count}} アプリがルーティングモードに入りました",
+    "globalRoutePartial": "{{total}} アプリ中 {{entered}} アプリがルーティングモードに入りました",
+    "globalRouteFailed": "グローバルルーティングを開始できませんでした: {{detail}}"
   },
   "quota": {
     "tierShort": "{{label}} {{value}}%",

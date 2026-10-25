@@ -9,10 +9,12 @@ import { proxyApi } from "@/lib/api/proxy";
 import { useProvidersQuery } from "@/lib/query";
 import {
   useGlobalProxyConfig,
+  useGlobalRoute,
   useProxyClientHost,
   useProxyStatusQuery,
   useSetProxyClientHost,
   useUpdateGlobalProxyConfig,
+  useEnterGlobalRoute,
 } from "@/lib/query/proxy";
 import { useProxyStatus } from "@/hooks/useProxyStatus";
 import {
@@ -100,6 +102,8 @@ export function RoutingSection({ onOpenApp }: RoutingSectionProps) {
   const updateConfig = useUpdateGlobalProxyConfig();
   const { data: savedClientHost } = useProxyClientHost();
   const saveClientHostMutation = useSetProxyClientHost();
+  const { data: globalRoute } = useGlobalRoute();
+  const enterGlobalRoute = useEnterGlobalRoute();
   const [address, setAddress] = useState("127.0.0.1");
   const [port, setPort] = useState("15721");
   const [addressError, setAddressError] = useState<string | null>(null);
@@ -194,6 +198,19 @@ export function RoutingSection({ onOpenApp }: RoutingSectionProps) {
 
   const stopReason =
     running && usingCount > 0 ? t("routingSettings.stopBlocked") : undefined;
+
+  // 全局路由总开关：开着 = 至少有一个应用接在代理上。各应用的模式 tab 里仍能单独改。
+  const attachedCount = globalRoute?.attached.length ?? 0;
+  const totalCount = globalRoute?.total ?? 0;
+  const globalRouteBusy =
+    enterGlobalRoute.isPending || isPending || !globalRoute;
+  const toggleGlobalRoute = (value: boolean) => {
+    if (value) {
+      enterGlobalRoute.mutate();
+      return;
+    }
+    setConfirmExitAll(true);
+  };
 
   return (
     <>
@@ -382,6 +399,29 @@ export function RoutingSection({ onOpenApp }: RoutingSectionProps) {
             checked={config?.enableLogging ?? false}
             disabled={!config}
             onCheckedChange={(value) => void toggleLogging(value)}
+          />
+        </SettingsCard>
+      </SettingsBlock>
+
+      <SettingsBlock title={t("routingSettings.globalRoute")}>
+        <SettingsCard>
+          <SettingsSwitchRow
+            label={t("routingSettings.globalRouteSwitch")}
+            help={{
+              title: t("routingSettings.globalRouteSwitch"),
+              body: t("routingSettings.globalRouteHelp"),
+            }}
+            description={
+              totalCount > 0
+                ? t("routingSettings.globalRouteStatus", {
+                    attached: attachedCount,
+                    total: totalCount,
+                  })
+                : undefined
+            }
+            checked={attachedCount > 0}
+            disabled={globalRouteBusy}
+            onCheckedChange={toggleGlobalRoute}
           />
         </SettingsCard>
       </SettingsBlock>

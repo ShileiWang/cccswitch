@@ -942,6 +942,9 @@
     "browsePlaceholderHermes": "ör. /home/<your-username>/.hermes",
     "browsePlaceholderPi": "ör. /home/<your-username>/.pi/agent",
     "browsePlaceholderOmp": "ör. /home/<your-username>/.omp/agent",
+    "browsePlaceholderCursor": "örn. /home/<your-username>/.cursor",
+    "cursorConfigDir": "Cursor Yapılandırma Dizini",
+    "cursorConfigDirDescription": "Cursor yapılandırma dizinini geçersiz kıl (mcp.json, skills ve yönetilen sağlayıcı).",
     "browseDirectory": "Dizine Göz Atın",
     "resetDefault": "Varsayılan dizine sıfırla (kaydettikten sonra etkili olur)",
     "checkForUpdates": "Güncellemeleri Kontrol Et",
@@ -4434,7 +4437,14 @@
     "exitAllTitle": "Tüm uygulamalar doğrudan bağlantıya döndürülsün mü?",
     "exitAllMessage": "Yönlendirme veya Birleştirme modundaki uygulamaların doğrudan yapılandırmaları geri yazılır, ardından yönlendirme hizmeti durur. Rota hedefleri, kuyruklar ve birleştirme listeleri tutulur.",
     "exitAllConfirm": "Tümünü doğrudan bağlantıya döndür",
-    "failoverHelp": "Her uygulamanın zaman aşımlarını, yeniden denemelerini ve devre kesicilerini buradan ayarlayın. Kuyruklar her uygulamanın Yönlendirme sekmesinde yönetilir."
+    "failoverHelp": "Her uygulamanın zaman aşımlarını, yeniden denemelerini ve devre kesicilerini buradan ayarlayın. Kuyruklar her uygulamanın Yönlendirme sekmesinde yönetilir.",
+    "globalRoute": "Genel yönlendirme",
+    "globalRouteSwitch": "Destekleyen tüm uygulamaları birlikte yönlendir",
+    "globalRouteHelp": "Açıldığında yönlendirmeyi destekleyen tüm uygulamalar son kullandıkları hedefle yönlendirme moduna geçer ve servis başlar. Her uygulama kendi sayfasında ayrıca değiştirilebilir. Kapatmak hepsini doğrudan bağlantıya döndürür.",
+    "globalRouteStatus": "{{total}} uygulamadan {{attached}} tanesi bağlı",
+    "globalRouteEntered": "{{count}} uygulama yönlendirme moduna geçti",
+    "globalRoutePartial": "{{total}} uygulamadan {{entered}} tanesi yönlendirme moduna geçti",
+    "globalRouteFailed": "Genel yönlendirme başlatılamadı: {{detail}}"
   },
   "quota": {
     "tierShort": "{{label}} {{value}}%",

@@ -6,6 +6,7 @@ import type {
   AppModeView,
   GlobalProxyConfig,
   AppProxyConfig,
+  GlobalRouteView,
   ProxyStackWriteError,
   ProxyTakeoverStatus,
 } from "@/types/proxy";
@@ -17,6 +18,7 @@ export const proxyKeys = {
   takeoverStatus: ["proxyTakeoverStatus"] as const,
   globalConfig: ["globalProxyConfig"] as const,
   clientHost: ["proxyClientHost"] as const,
+  globalRoute: ["globalRoute"] as const,
   appConfig: (appType: string) => ["appProxyConfig", appType] as const,
 };
 
@@ -340,6 +342,81 @@ export function useAppProxyConfig(appType: string) {
     queryKey: proxyKeys.appConfig(appType),
     queryFn: () => proxyApi.getProxyConfigForApp(appType),
     enabled: !!appType,
+  });
+}
+
+// ========== 全局路由 Hooks ==========
+
+/**
+ * 全局路由的当前样子：哪些应用接在代理上、一共几个应用、代理服务在不在跑。
+ * 代理跑着的时候轮询，跟着每个应用的进出一起更新。
+ */
+export function useGlobalRoute(enabled = true) {
+  return useQuery({
+    queryKey: proxyKeys.globalRoute,
+    queryFn: () => proxyApi.getGlobalRoute(),
+    enabled,
+    refetchInterval: (query) => (query.state.data?.running ? 2000 : false),
+    placeholderData: (previous: GlobalRouteView | undefined) => previous,
+  });
+}
+
+/**
+ * 全局路由总开关：所有有路由模式的应用一起进入路由模式。部分失败时也提示进了几个，
+ * 失败的那几个按应用列出原因。
+ */
+export function useEnterGlobalRoute() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
+  return useMutation({
+    mutationFn: () => proxyApi.enterGlobalRoute(),
+    onSuccess: (results) => {
+      const entered = results.filter((result) => result.ok);
+      const failed = results.filter((result) => !result.ok);
+      if (failed.length === 0) {
+        toast.success(
+          t("routingSettings.globalRouteEntered", {
+            count: entered.length,
+            defaultValue: `已进入路由模式（${entered.length} 个应用）`,
+          }),
+          { closeButton: true },
+        );
+        return;
+      }
+      toast.warning(
+        failed
+          .map((result) => {
+            const app = getAppLabel(result.appType);
+            const reason = result.error?.trim();
+            return reason ? `${app}: ${reason}` : app;
+          })
+          .join("\n"),
+        {
+          description: t("routingSettings.globalRoutePartial", {
+            entered: entered.length,
+            total: results.length,
+            defaultValue: `${results.length} 个应用里 ${entered.length} 个已进入路由模式`,
+          }),
+          closeButton: true,
+        },
+      );
+    },
+    onError: (error: unknown) => {
+      toast.error(
+        t("routingSettings.globalRouteFailed", {
+          detail: extractErrorMessage(error),
+          defaultValue: `进入全局路由失败: ${extractErrorMessage(error)}`,
+        }),
+      );
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: proxyKeys.globalRoute });
+      queryClient.invalidateQueries({ queryKey: proxyKeys.status });
+      queryClient.invalidateQueries({ queryKey: proxyKeys.takeoverStatus });
+      // 进出路由会改「当前」显示的那家（路由模式下是路由到的那家）。
+      queryClient.invalidateQueries({ queryKey: ["providers"] });
+    },
   });
 }
 

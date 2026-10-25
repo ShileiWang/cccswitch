@@ -991,6 +991,35 @@ pub async fn exit_all(state: &AppState) -> Result<(), String> {
     }
 }
 
+/// 全局路由：所有有路由模式的应用一起进入路由模式。
+///
+/// 一个应用失败不影响其余的：返回每个应用的结果，界面照着提示哪些进了、哪些没进。每个
+/// 应用沿用自己上次的路由（没有就退回直连指针）。已经接上代理的应用（路由或聚合模式）
+/// 不动：全局路由不用把聚合模式换成路由模式。
+pub async fn enter_all(state: &AppState) -> Vec<GlobalRouteAppResult> {
+    let mut results = Vec::new();
+    for app in PROXY_APPS {
+        if current::mode_state(&app).attached {
+            results.push(GlobalRouteAppResult {
+                app_type: app.as_str().to_string(),
+                ok: true,
+                error: None,
+            });
+            continue;
+        }
+        let error = enter(state, &app, false).await.err();
+        if error.is_none() {
+            log::info!("[MODE] 全局路由：{} 已进入路由模式", app.as_str());
+        }
+        results.push(GlobalRouteAppResult {
+            app_type: app.as_str().to_string(),
+            ok: error.is_none(),
+            error,
+        });
+    }
+    results
+}
+
 /// 退出 CC Switch 时：把接上代理的客户端都指回直连（模式不变，下次启动再接上），再停掉
 /// 代理服务。
 ///
@@ -1882,6 +1911,42 @@ pub fn app_mode_view(state: &AppState, app: &AppType) -> Result<AppModeView, Str
         route_provider_id: mode.proxy_route,
         direct_provider_id: direct_provider_id(state, app).map_err(err)?,
     })
+}
+
+/// 全局路由的结果：每个应用单独一行，界面照着提示。
+#[derive(Debug, Clone, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GlobalRouteAppResult {
+    pub app_type: String,
+    pub ok: bool,
+    pub error: Option<String>,
+}
+
+/// 全局路由的当前样子：有几个应用接在代理上、一共几个有路由模式的应用。界面用它决定
+/// 总开关显示成开还是关，不需要逐个应用轮询。
+#[derive(Debug, Clone, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GlobalRouteView {
+    /// 接在代理上的应用（路由或聚合模式）
+    pub attached: Vec<String>,
+    /// 有路由模式、能被全局路由管到的应用
+    pub total: usize,
+    pub running: bool,
+}
+
+pub async fn global_route_view(state: &AppState) -> GlobalRouteView {
+    let flags = current::proxy_flags(PROXY_APPS);
+    let mut attached = Vec::new();
+    for (index, app) in PROXY_APPS.iter().enumerate() {
+        if flags[index] {
+            attached.push(app.as_str().to_string());
+        }
+    }
+    GlobalRouteView {
+        attached,
+        total: PROXY_APPS.len(),
+        running: state.proxy_service.is_running().await,
+    }
 }
 
 /// 启动时没能接上代理、退回直连的应用。界面打开时取走一次，在应用页提示并给「重试」。

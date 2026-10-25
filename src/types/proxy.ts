@@ -79,6 +79,22 @@ export interface StartupAttachFailure {
   error: string;
 }
 
+/** 全局路由里单个应用的结果（后端 `enter_global_route`）。 */
+export interface GlobalRouteAppResult {
+  appType: string;
+  ok: boolean;
+  error: string | null;
+}
+
+/** 全局路由的当前样子（后端 `get_global_route`）。 */
+export interface GlobalRouteView {
+  /** 接在代理上的应用（路由或聚合模式） */
+  attached: string[];
+  /** 有路由模式、能被全局路由管到的应用数 */
+  total: number;
+  running: boolean;
+}
+
 /** Stack 模型：名单里的一家和它发布给客户端的模型 id。 */
 export interface ProxyStackMember {
   providerId: string;

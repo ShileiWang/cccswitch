@@ -62,6 +62,25 @@ pub async fn stop_proxy_with_restore(state: tauri::State<'_, AppState>) -> Resul
     crate::mode::controller::exit_all(state.inner()).await
 }
 
+/// 全局路由：所有有路由模式的应用一起进入路由模式。返回每个应用各自的结果。
+#[tauri::command]
+pub async fn enter_global_route(
+    app_handle: tauri::AppHandle,
+    state: tauri::State<'_, AppState>,
+) -> Result<Vec<crate::mode::controller::GlobalRouteAppResult>, String> {
+    let results = crate::mode::controller::enter_all(state.inner()).await;
+    crate::tray::refresh_tray_menu(&app_handle);
+    Ok(results)
+}
+
+/// 全局路由的当前样子：哪些应用接在代理上、一共几个应用、代理服务在不在跑。
+#[tauri::command]
+pub async fn get_global_route(
+    state: tauri::State<'_, AppState>,
+) -> Result<crate::mode::controller::GlobalRouteView, String> {
+    Ok(crate::mode::controller::global_route_view(state.inner()).await)
+}
+
 /// 获取各应用接管状态
 #[tauri::command]
 pub async fn get_proxy_takeover_status(

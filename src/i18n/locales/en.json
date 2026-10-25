@@ -942,6 +942,9 @@
     "browsePlaceholderHermes": "e.g., /home/<your-username>/.hermes",
     "browsePlaceholderPi": "e.g., /home/<your-username>/.pi/agent",
     "browsePlaceholderOmp": "e.g., /home/<your-username>/.omp/agent",
+    "browsePlaceholderCursor": "e.g., /home/<your-username>/.cursor",
+    "cursorConfigDir": "Cursor Configuration Directory",
+    "cursorConfigDirDescription": "Override the Cursor configuration directory (mcp.json, skills and the managed provider).",
     "browseDirectory": "Browse Directory",
     "resetDefault": "Reset to default directory (takes effect after saving)",
     "checkForUpdates": "Check for Updates",
@@ -4444,7 +4447,14 @@
     "exitAllTitle": "Switch every app back to direct?",
     "exitAllMessage": "Apps in routing or Aggregation mode get their direct config written back, then the routing service stops. Route targets, queues and aggregation lists are kept.",
     "exitAllConfirm": "Switch all back to direct",
-    "failoverHelp": "Tune each app's timeouts, retries and circuit breaker here. Queues are managed on each app's Routing tab."
+    "failoverHelp": "Tune each app's timeouts, retries and circuit breaker here. Queues are managed on each app's Routing tab.",
+    "globalRoute": "Global routing",
+    "globalRouteSwitch": "Route every supported app at once",
+    "globalRouteHelp": "Turning this on puts every app that supports routing into routing mode with the target it used last, and starts the service. Each app stays adjustable on its own page. Turn it off to take them all back to direct.",
+    "globalRouteStatus": "{{attached}} of {{total}} apps connected",
+    "globalRouteEntered": "{{count}} apps entered routing mode",
+    "globalRoutePartial": "{{entered}} of {{total}} apps entered routing mode",
+    "globalRouteFailed": "Could not enter global routing: {{detail}}"
   },
   "quota": {
     "tierShort": "{{label}} {{value}}%",

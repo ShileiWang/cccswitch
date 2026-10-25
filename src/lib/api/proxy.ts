@@ -1,5 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import type {
+  GlobalRouteAppResult,
+  GlobalRouteView,
   RouteSwitchResult,
   ProxyStatus,
   ProxyServerInfo,
@@ -29,6 +31,16 @@ export const proxyApi = {
   // 停止代理服务器并恢复配置
   async stopProxyWithRestore(): Promise<void> {
     return invoke("stop_proxy_with_restore");
+  },
+
+  // 全局路由：所有有路由模式的应用一起进入路由模式，返回每个应用各自的结果
+  async enterGlobalRoute(): Promise<GlobalRouteAppResult[]> {
+    return invoke("enter_global_route");
+  },
+
+  // 全局路由的当前样子：哪些应用接在代理上、一共几个应用、代理服务在不在跑
+  async getGlobalRoute(): Promise<GlobalRouteView> {
+    return invoke("get_global_route");
   },
 
   // 获取代理服务器状态

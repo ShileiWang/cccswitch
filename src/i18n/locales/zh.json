@@ -942,6 +942,9 @@
     "browsePlaceholderHermes": "例如：/home/<你的用户名>/.hermes",
     "browsePlaceholderPi": "例如：/home/<你的用户名>/.pi/agent",
     "browsePlaceholderOmp": "例如：/home/<你的用户名>/.omp/agent",
+    "browsePlaceholderCursor": "例如：/home/<你的用户名>/.cursor",
+    "cursorConfigDir": "Cursor 配置目录",
+    "cursorConfigDirDescription": "覆盖 Cursor 的配置目录（mcp.json、skills 和接管的供应商）。",
     "browseDirectory": "浏览目录",
     "resetDefault": "恢复默认目录（需保存后生效）",
     "checkForUpdates": "检查更新",
@@ -4444,7 +4447,14 @@
     "exitAllTitle": "让所有应用回到直连？",
     "exitAllMessage": "在路由和聚合模式下的应用都会写回直连配置，然后停止路由服务。路由目标、队列和聚合名单会保留。",
     "exitAllConfirm": "全部回到直连",
-    "failoverHelp": "这里调各应用的超时、重试和熔断。队列在各应用页的「路由」页签里管理。"
+    "failoverHelp": "这里调各应用的超时、重试和熔断。队列在各应用页的「路由」页签里管理。",
+    "globalRoute": "全局路由",
+    "globalRouteSwitch": "所有支持路由的应用一起进入路由",
+    "globalRouteHelp": "打开时，所有支持路由的应用按各自上次使用的目标进入路由模式并启动服务；各应用仍能在自己的页面里单独调整。关闭会把它们全部退回直连。",
+    "globalRouteStatus": "{{total}} 个应用中 {{attached}} 个已接管",
+    "globalRouteEntered": "{{count}} 个应用已进入路由模式",
+    "globalRoutePartial": "{{total}} 个应用中 {{entered}} 个已进入路由模式",
+    "globalRouteFailed": "进入全局路由失败：{{detail}}"
   },
   "quota": {
     "tierShort": "{{label}} {{value}}%",
