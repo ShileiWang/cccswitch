@@ -1282,10 +1282,32 @@ fn parse_gemini_file_json(content: &str) -> GeminiCredentials {
 
 // ── Gemini Token 刷新 ──────────────────────────────────────
 
-/// Gemini OAuth Client 凭据（公开值，来自 Gemini CLI 源码 google-gemini/gemini-cli）
+/// Gemini OAuth Client ID（公开值，来自 Gemini CLI 源码 google-gemini/gemini-cli）
 const GEMINI_OAUTH_CLIENT_ID: &str =
     "681255809395-oo8ft2oprdrnp9e3aqf6av3hmdib135j.apps.googleusercontent.com";
-const GEMINI_OAUTH_CLIENT_SECRET: &str = "REMOVED-BY-PUSH-SCAN";
+
+/// Gemini OAuth Client Secret。
+///
+/// 上游仓库因为把这个值写进源码被 GitHub 密钥扫描拦住了推送，所以这里不再内置：
+/// 依次看 `GEMINI_OAUTH_CLIENT_SECRET` 环境变量、`src-tauri/gemini-oauth.txt`
+/// （已 gitignore）和构建期注入的 `GEMINI_OAUTH_CLIENT_SECRET`。三处都没有时刷新
+/// Gemini token 会失败，界面提示重新登录即可。
+fn gemini_oauth_client_secret() -> Option<String> {
+    if let Some(secret) = std::env::var("GEMINI_OAUTH_CLIENT_SECRET")
+        .ok()
+        .filter(|value| !value.trim().is_empty())
+    {
+        return Some(secret.trim().to_string());
+    }
+    let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("gemini-oauth.txt");
+    if let Ok(text) = std::fs::read_to_string(&path) {
+        let trimmed = text.trim();
+        if !trimmed.is_empty() {
+            return Some(trimmed.to_string());
+        }
+    }
+    option_env!("GEMINI_OAUTH_CLIENT_SECRET").map(|value| value.trim().to_string())
+}
 
 /// 使用 refresh_token 刷新 Gemini access token
 ///
@@ -1293,12 +1315,13 @@ const GEMINI_OAUTH_CLIENT_SECRET: &str = "REMOVED-BY-PUSH-SCAN";
 /// refresh_token 本身不过期（除非用户撤销授权）。
 async fn refresh_gemini_token(refresh_token: &str) -> Option<String> {
     let client = crate::proxy::http_client::get();
+    let client_secret = gemini_oauth_client_secret()?;
 
     let resp = client
         .post("https://oauth2.googleapis.com/token")
         .form(&[
             ("client_id", GEMINI_OAUTH_CLIENT_ID),
-            ("client_secret", GEMINI_OAUTH_CLIENT_SECRET),
+            ("client_secret", client_secret.as_str()),
             ("refresh_token", refresh_token),
             ("grant_type", "refresh_token"),
         ])

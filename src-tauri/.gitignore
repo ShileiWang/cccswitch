@@ -2,3 +2,7 @@
 # will have compiled files and executables
 /target/
 /gen/schemas
+
+# Gemini OAuth client secret（本地注入，不要提交）
+gemini-oauth.txt
+agy-oauth.txt

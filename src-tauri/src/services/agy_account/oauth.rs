@@ -19,8 +19,25 @@ use tokio::net::TcpListener;
 pub const CLIENT_ID: &str =
     "1071006060591-tmhssin2h21lcre235vtolojh4g403ep.apps.googleusercontent.com";
 /// agy 二进制里内置的安装型客户端密钥。Google 的文档说明安装型应用的密钥不当机密看待
-/// （任何人都能从 agy 里取出来）；拆成两段只是为了不触发仓库的密钥扫描误报。
-const CLIENT_SECRET_PARTS: [&str; 2] = ["REMOVED-", "BY-PUSH-SCAN"];
+/// （任何人都能从 agy 里取出来），但 GitHub 的密钥扫描照样拦。所以这里不内置：
+/// 依次看 `AGY_OAUTH_CLIENT_SECRET` 环境变量、`src-tauri/agy-oauth.txt`（已 gitignore）
+/// 和构建期注入的值。都取不到时登录流程会失败，日志里会写明原因。
+fn client_secret_source() -> Option<String> {
+    if let Some(secret) = std::env::var("AGY_OAUTH_CLIENT_SECRET")
+        .ok()
+        .filter(|value| !value.trim().is_empty())
+    {
+        return Some(secret.trim().to_string());
+    }
+    let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("agy-oauth.txt");
+    if let Ok(text) = std::fs::read_to_string(&path) {
+        let trimmed = text.trim();
+        if !trimmed.is_empty() {
+            return Some(trimmed.to_string());
+        }
+    }
+    option_env!("AGY_OAUTH_CLIENT_SECRET").map(|value| value.trim().to_string())
+}
 
 const AUTH_ENDPOINT: &str = "https://accounts.google.com/o/oauth2/v2/auth";
 const TOKEN_ENDPOINT: &str = "https://oauth2.googleapis.com/token";
@@ -39,7 +56,7 @@ const MAX_REQUEST_BYTES: usize = 16 * 1024;
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(30);
 
 fn client_secret() -> String {
-    CLIENT_SECRET_PARTS.concat()
+    client_secret_source().unwrap_or_default()
 }
 
 #[derive(Debug, thiserror::Error)]
